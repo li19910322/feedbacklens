@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { PayPalCheckout } from '@/components/PayPalCheckout';
 
 const plans = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '0',
-    priceDisplay: 'Free',
-    description: 'Perfect for getting started',
+    price: 'Free',
+    period: '',
+    amount: '0',
     features: [
       '1 feedback form',
       'Up to 100 responses/month',
@@ -17,230 +18,201 @@ const plans = [
       'Email support',
     ],
     highlighted: false,
+    cta: 'Get Started',
   },
   {
     id: 'professional',
     name: 'Professional',
-    price: '29',
-    priceDisplay: '$29/mo',
-    description: 'For growing businesses',
+    price: '$29',
+    period: '/month',
+    amount: '29',
     features: [
       'Unlimited forms',
       'Up to 10,000 responses/month',
       'AI-powered analysis',
-      'CSV import/export',
+      'CSV import & export',
       'Priority support',
       'Custom branding',
     ],
     highlighted: true,
+    cta: 'Subscribe Now',
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: '99',
-    priceDisplay: '$99/mo',
-    description: 'For large organizations',
+    price: 'Custom',
+    period: '',
+    amount: '0',
     features: [
       'Everything in Professional',
       'Unlimited responses',
-      'API access',
       'Custom integrations',
-      'Dedicated account manager',
+      'API access',
+      'Dedicated support',
       'SLA guarantee',
     ],
     highlighted: false,
+    cta: 'Contact Sales',
   },
 ];
 
 export default function PricingPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showPayment, setShowPayment] = useState(false);
 
-  const handlePlanSelect = (planId: string) => {
+  const handleSelectPlan = (planId: string) => {
     if (planId === 'starter') {
-      // For free plan, just redirect to signup
       window.location.href = '/signup';
       return;
     }
+    if (planId === 'enterprise') {
+      window.location.href = 'mailto:support@feedbacklens.com?subject=Enterprise%20Plan%20Inquiry';
+      return;
+    }
     setSelectedPlan(planId);
-    setPaymentStatus('idle');
+    setShowPayment(true);
   };
 
   const handlePaymentSuccess = () => {
-    setPaymentStatus('success');
-    setTimeout(() => {
-      window.location.href = '/dashboard';
-    }, 2000);
-  };
-
-  const handlePaymentError = (error: any) => {
-    console.error('Payment error:', error);
-    setPaymentStatus('error');
+    // Redirect to dashboard or show success message
+    window.location.href = '/dashboard?payment=success';
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <nav className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <a href="/" className="text-2xl font-bold text-blue-600">FeedbackLens</a>
+      <header className="bg-white shadow">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <Link href="/" className="text-2xl font-bold text-blue-600">FeedbackLens</Link>
           <div className="flex gap-4">
-            <a href="/login" className="text-gray-600 hover:text-gray-900 font-medium">Login</a>
-            <a href="/signup" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">Sign Up</a>
+            <Link href="/login" className="text-gray-600 hover:text-gray-900 font-medium">Login</Link>
+            <Link href="/signup" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">Sign Up</Link>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-16">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Start free and scale as you grow. No hidden fees, cancel anytime.
+            Start free and scale as you grow. No hidden fees, no surprises.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className={`rounded-lg shadow-lg p-8 ${
-                plan.highlighted
-                  ? 'bg-blue-600 text-white ring-4 ring-blue-300'
-                  : 'bg-white text-gray-900'
+              className={`relative bg-white rounded-lg shadow-lg ${
+                plan.highlighted ? 'ring-2 ring-blue-600 scale-105' : ''
               }`}
             >
               {plan.highlighted && (
-                <div className="bg-white text-blue-600 px-3 py-1 rounded-full text-sm font-semibold inline-block mb-4">
-                  Most Popular
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+                    Most Popular
+                  </span>
                 </div>
               )}
               
-              <h2 className="text-2xl font-bold mb-2">{plan.name}</h2>
-              <p className={`text-sm mb-4 ${plan.highlighted ? 'text-blue-100' : 'text-gray-600'}`}>
-                {plan.description}
-              </p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">{plan.priceDisplay}</span>
-                {plan.price !== '0' && (
-                  <span className={plan.highlighted ? 'text-blue-100' : 'text-gray-600'}>
-                    /month
-                  </span>
-                )}
-              </div>
+              <div className="p-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                  <span className="text-gray-600">{plan.period}</span>
+                </div>
 
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <svg
-                      className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-white' : 'text-green-500'}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className={plan.highlighted ? 'text-white' : 'text-gray-600'}>
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
                       {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+                </ul>
 
-              <button
-                onClick={() => handlePlanSelect(plan.id)}
-                className={`w-full py-3 rounded-lg font-semibold transition ${
-                  plan.highlighted
-                    ? 'bg-white text-blue-600 hover:bg-gray-100'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                {plan.price === '0' ? 'Get Started Free' : 'Subscribe Now'}
-              </button>
+                <button
+                  onClick={() => handleSelectPlan(plan.id)}
+                  className={`w-full py-3 rounded-lg font-semibold transition ${
+                    plan.highlighted
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                  }`}
+                >
+                  {plan.cta}
+                </button>
+              </div>
             </div>
           ))}
         </div>
 
+        {/* FAQ */}
+        <div className="bg-white rounded-lg shadow p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Frequently Asked Questions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Can I change plans later?</h3>
+              <p className="text-gray-600">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">What happens if I exceed my response limit?</h3>
+              <p className="text-gray-600">We&apos;ll notify you when you&apos;re approaching your limit. You can upgrade or responses will be paused.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Is there a free trial for paid plans?</h3>
+              <p className="text-gray-600">Yes! Start with the Professional plan and get 14 days free. No credit card required.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">How do I cancel my subscription?</h3>
+              <p className="text-gray-600">You can cancel anytime from your account settings. Your subscription remains active until the billing period ends.</p>
+            </div>
+          </div>
+        </div>
+
         {/* Payment Modal */}
-        {selectedPlan && selectedPlan !== 'starter' && (
+        {showPayment && selectedPlan && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-8">
-              <h2 className="text-2xl font-bold mb-2">Complete Your Subscription</h2>
-              <p className="text-gray-600 mb-6">
-                You're subscribing to the{' '}
-                <strong>{plans.find(p => p.id === selectedPlan)?.name}</strong> plan
-              </p>
-
-              {paymentStatus === 'success' ? (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                  <svg className="w-12 h-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold">Complete Your Subscription</h3>
+                <button
+                  onClick={() => setShowPayment(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  <p className="text-green-800 font-semibold">Payment Successful!</p>
-                  <p className="text-green-600 text-sm">Redirecting to dashboard...</p>
+                </button>
+              </div>
+              
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Plan</span>
+                  <span className="font-semibold capitalize">{selectedPlan}</span>
                 </div>
-              ) : paymentStatus === 'error' ? (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center mb-4">
-                  <p className="text-red-800 font-semibold">Payment Failed</p>
-                  <p className="text-red-600 text-sm">Please try again or contact support</p>
-                  <button
-                    onClick={() => setPaymentStatus('idle')}
-                    className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                  >
-                    Try Again
-                  </button>
+                <div className="flex justify-between mt-2">
+                  <span className="text-gray-600">Amount</span>
+                  <span className="font-semibold">$29.00/month</span>
                 </div>
-              ) : (
-                <PayPalCheckout
-                  plan={selectedPlan as any}
-                  amount={plans.find(p => p.id === selectedPlan)?.price || '0'}
-                  description={`FeedbackLens ${plans.find(p => p.id === selectedPlan)?.name} Plan`}
-                  onSuccess={handlePaymentSuccess}
-                  onError={handlePaymentError}
-                />
-              )}
+              </div>
 
-              <button
-                onClick={() => {
-                  setSelectedPlan(null);
-                  setPaymentStatus('idle');
-                }}
-                className="w-full mt-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
-              >
-                Cancel
-              </button>
+              <PayPalCheckout
+                amount="29.00"
+                planName="Professional Plan"
+                onSuccess={handlePaymentSuccess}
+                onCancel={() => setShowPayment(false)}
+              />
             </div>
           </div>
         )}
+      </main>
 
-        {/* FAQ Section */}
-        <div className="mt-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {[
-              {
-                q: 'Can I cancel anytime?',
-                a: 'Yes! You can cancel your subscription at any time. Your access will continue until the end of your billing period.',
-              },
-              {
-                q: 'What payment methods do you accept?',
-                a: 'We accept PayPal and all major credit cards through our secure payment processor.',
-              },
-              {
-                q: 'Is there a free trial?',
-                a: 'Our Starter plan is completely free forever with no credit card required. Upgrade anytime.',
-              },
-              {
-                q: 'Can I upgrade or downgrade my plan?',
-                a: 'Yes, you can change your plan at any time. Changes take effect immediately with prorated billing.',
-              },
-            ].map((faq, idx) => (
-              <div key={idx} className="bg-white rounded-lg shadow p-6">
-                <h3 className="font-semibold text-gray-900 mb-2">{faq.q}</h3>
-                <p className="text-gray-600">{faq.a}</p>
-              </div>
-            ))}
-          </div>
+      <footer className="bg-gray-900 text-white py-8 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p>&copy; 2024 FeedbackLens. All rights reserved.</p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

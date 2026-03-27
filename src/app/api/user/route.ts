@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request: NextRequest) {
@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const { data: { user }, error } = await supabaseServer.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabaseServer.auth.getUser(token);
 
-    if (error || !user) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user profile from profiles table
-    const { data: profile } = await supabaseServer
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('id', user.id)
@@ -50,12 +50,34 @@ export async function PATCH(request: NextRequest) {
     }
 
     const token = authHeader.replace('Bearer ', '');
+    const supabaseServer = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+      }
+    );
+
+    const { data: { user }, error: authError } = await supabaseServer.auth.getUser(token);
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { full_name, company, plan } = await request.json();
+
+    const updateData: any = { updated_at: new Date() };
+    if (full_name !== undefined) updateData.full_name = full_name;
+    if (company !== undefined) updateData.company = company;
+    if (plan !== undefined) updateData.plan = plan;
 
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .update({ full_name, company, plan, updated_at: new Date() })
-      .eq('id', token)
+      .upsert({
+        id: user.id,
+        email: user.email,
+        ...updateData,
+      })
       .select()
       .single();
 

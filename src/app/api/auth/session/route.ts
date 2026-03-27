@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
     const { error } = await supabase.auth.signOut();
 

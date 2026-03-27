@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PAYPAL_API_BASE = 'https://api-m.sandbox.paypal.com'; // Use https://api-m.paypal.com for live
-
 /**
  * Verify PayPal webhook signature.
  * In production, you MUST verify the signature for security.
  */
 async function verifyWebhookSignature(
   headers: Headers,
-  body: string
+  _body: string
 ): Promise<boolean> {
   // Full verification requires:
   // 1. Get cert URL from PAYPAL-CERT-URL header

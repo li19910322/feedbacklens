@@ -104,3 +104,14 @@ export async function getAnalytics(formId: string) {
   if (error && error.code !== 'PGRST116') throw error;
   return data;
 }
+
+export async function getFormById(formId: string) {
+  const { data, error } = await supabase
+    .from('feedback_forms')
+    .select('*')
+    .eq('id', formId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
