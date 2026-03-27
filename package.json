@@ -7,7 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "tsc --noEmit"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -29,6 +40,8 @@
     "postcss": "^8.4.0",
     "autoprefixer": "^10.4.0",
     "eslint": "^8.48.0",
-    "eslint-config-next": "^14.0.0"
+    "eslint-config-next": "^14.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
   }
 }
