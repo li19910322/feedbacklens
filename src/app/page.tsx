@@ -14,6 +14,12 @@ export default function Home() {
               Login
             </Link>
             <Link
+              href="/pricing"
+              className="text-gray-600 hover:text-gray-900 font-medium"
+            >
+              Pricing
+            </Link>
+            <Link
               href="/signup"
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium"
             >
@@ -149,15 +155,16 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  className={`w-full py-2 rounded-lg font-semibold ${
+                <Link
+                  href="/signup"
+                  className={`block w-full py-2 rounded-lg font-semibold text-center ${
                     plan.highlighted
                       ? 'bg-white text-blue-600 hover:bg-gray-100'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                 >
                   Get Started
-                </button>
+                </Link>
               </div>
             ))}
           </div>
@@ -166,7 +173,7 @@ export default function Home() {
 
       <footer className="bg-gray-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p>&copy; 2024 FeedbackLens. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} FeedbackLens. All rights reserved.</p>
         </div>
       </footer>
     </div>
