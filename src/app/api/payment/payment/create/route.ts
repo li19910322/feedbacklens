@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PAYPAL_API_BASE = 'https://api-m.sandbox.paypal.com'; // Use https://api-m.paypal.com for live
+const PAYPAL_API_BASE = 'https://api-m.paypal.com'; // Production environment
 
 /**
  * Generate a PayPal access token using Client Credentials (OAuth2).

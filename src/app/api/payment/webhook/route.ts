@@ -7,9 +7,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const eventType = body.event_type;
 
-    console.log('PayPal webhook event:', eventType);
-
-    // Handle different webhook events
     switch (eventType) {
       case 'PAYMENT.CAPTURE.COMPLETED':
         // Payment was successful
@@ -32,26 +29,20 @@ export async function POST(request: NextRequest) {
 
       case 'PAYMENT.CAPTURE.DENIED':
       case 'PAYMENT.CAPTURE.REFUNDED':
-        // Payment failed or refunded
-        console.log('Payment issue:', eventType);
         break;
 
       case 'BILLING.SUBSCRIPTION.CANCELLED':
-        // Subscription cancelled - downgrade user plan
-        // const subscription = body.resource;
-        // await supabaseAdmin.from('users').update({ subscription_tier: 'free' }).eq('subscription_id', subscription.id);
-        console.log('Subscription cancelled');
         break;
 
       default:
-        console.log('Unhandled webhook event:', eventType);
+        break;
     }
 
     return NextResponse.json({ received: true });
-  } catch (error: any) {
-    console.error('Webhook error:', error);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Webhook processing failed';
     return NextResponse.json(
-      { error: error.message || 'Webhook processing failed' },
+      { error: msg || 'Webhook processing failed' },
       { status: 500 }
     );
   }

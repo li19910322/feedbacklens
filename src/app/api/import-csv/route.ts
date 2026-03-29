@@ -58,10 +58,10 @@ export async function POST(request: NextRequest) {
       total: rows.length,
       errors: errors.slice(0, 10), // Return first 10 errors
     });
-  } catch (error: any) {
-    console.error('CSV import error:', error);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Import failed';
     return NextResponse.json(
-      { error: error.message || 'Import failed' },
+      { error: msg },
       { status: 500 }
     );
   }

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PAYPAL_API = process.env.PAYPAL_MODE === 'live' 
-  ? 'https://api-m.paypal.com' 
-  : 'https://api-m.sandbox.paypal.com';
+const PAYPAL_API = 'https://api-m.paypal.com'; // Production only
 
 async function getAccessToken() {
   const auth = Buffer.from(
@@ -61,7 +59,6 @@ export async function POST(request: NextRequest) {
       const order = await response.json();
       
       if (!response.ok) {
-        console.error('PayPal create order error:', order);
         return NextResponse.json({ error: order.message || 'Failed to create order' }, { status: 400 });
       }
 
@@ -84,7 +81,6 @@ export async function POST(request: NextRequest) {
       const result = await response.json();
       
       if (!response.ok) {
-        console.error('PayPal capture error:', result);
         return NextResponse.json({ error: result.message || 'Capture failed' }, { status: 400 });
       }
 
@@ -95,10 +91,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-  } catch (error: any) {
-    console.error('PayPal error:', error);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Payment processing failed';
     return NextResponse.json(
-      { error: error.message || 'Payment processing failed' },
+      { error: msg || 'Payment processing failed' },
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
@@ -22,11 +22,7 @@ export default function FormDetailPage() {
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
 
-  useEffect(() => {
-    checkAuth();
-  }, [formId]);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -37,7 +33,11 @@ export default function FormDetailPage() {
     }
 
     await loadForm(formId);
-  };
+  }, [router, formId]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const loadForm = async (id: string) => {
     try {

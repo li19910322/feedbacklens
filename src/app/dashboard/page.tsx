@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
@@ -19,11 +19,7 @@ export default function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -35,7 +31,11 @@ export default function Dashboard() {
 
     setUser(session.user);
     loadForms(session.user.id);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const loadForms = async (userId: string) => {
     try {

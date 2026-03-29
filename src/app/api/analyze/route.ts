@@ -41,7 +41,6 @@ Respond in JSON format: {"sentiment": number, "summary": string, "themes": strin
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Analysis error:', error);
     return NextResponse.json(
       { error: 'Failed to analyze feedback' },
       { status: 500 }

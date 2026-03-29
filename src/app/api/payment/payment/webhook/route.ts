@@ -54,64 +54,49 @@ export async function POST(req: NextRequest) {
     // Verify webhook signature (simplified - implement full verification in production!)
     const isValid = await verifyWebhookSignature(req.headers, rawBody);
     if (!isValid) {
-      console.warn('[PayPal Webhook] Invalid signature - skipping verification for development');
-      // In production, return 401 here
-      // return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+      // Webhook signature verification failed
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const eventType = event.event_type;
     const resource = event.resource;
 
-    console.log(`[PayPal Webhook] Event: ${eventType}`, resource?.id);
-
     switch (eventType) {
       case 'PAYMENT.CAPTURE.COMPLETED': {
         // Payment was successfully captured
-        const orderId = resource?.id;
         const customId = resource?.purchase_units?.[0]?.custom_id ?? resource?.custom_id;
         const credits = customId ? parseInt(customId, 10) : 0;
 
         if (credits > 0) {
           // TODO: Add credits to user account in Supabase
-          // Example:
-          // await supabase
-          //   .from('users')
-          //   .update({ credits: supabase.rpc('increment_credits', { amount: credits }) })
-          //   .eq('paypal_order_id', orderId);
-          console.log(`[PayPal Webhook] ✅ Credits added: ${credits} for order ${orderId}`);
         }
         break;
       }
 
       case 'PAYMENT.CAPTURE.DENIED': {
         // Payment was denied
-        console.warn(`[PayPal Webhook] ⚠️ Payment denied for order ${resource?.id}`);
         // TODO: Notify user, log to database
         break;
       }
 
       case 'PAYMENT.CAPTURE.REFUNDED': {
         // Payment was refunded
-        console.log(`[PayPal Webhook] 💰 Refund for order ${resource?.id}`);
         // TODO: Deduct credits from user account if applicable
         break;
       }
 
       case 'CHECKOUT.ORDER.APPROVED': {
         // Order approved by buyer, waiting for capture
-        // You might want to auto-capture here if using server-side flow
-        console.log(`[PayPal Webhook] Order approved: ${resource?.id}`);
         break;
       }
 
       default:
-        console.log(`[PayPal Webhook] Unhandled event: ${eventType}`);
+        break;
     }
 
     // Always return 200 to acknowledge receipt
     return NextResponse.json({ received: true });
   } catch (err) {
-    console.error('[PayPal Webhook error]', err);
     // Still return 200 to prevent retries for malformed requests
     return NextResponse.json({ received: false, error: 'Processing error' }, { status: 200 });
   }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PAYPAL_API_BASE = 'https://api-m.sandbox.paypal.com'; // Use https://api-m.paypal.com for live
+const PAYPAL_API_BASE = 'https://api-m.paypal.com'; // Production environment
 
 /**
  * Generate a PayPal access token using Client Credentials (OAuth2).
@@ -100,8 +100,6 @@ export async function POST(req: NextRequest) {
     //   .from('users')
     //   .update({ credits: supabase.rpc('increment_credits', { amount: credits }) })
     //   .eq('id', userId);
-
-    console.log(`[PayPal] Captured ${credits} credits for order ${orderId}`);
 
     return NextResponse.json({
       success: true,

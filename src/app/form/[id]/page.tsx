@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { FeedbackForm } from '@/components/FeedbackForm';
@@ -14,11 +14,7 @@ export default function FormPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    loadForm();
-  }, [formId]);
-
-  const loadForm = async () => {
+  const loadForm = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('feedback_forms')
@@ -34,7 +30,11 @@ export default function FormPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formId]);
+
+  useEffect(() => {
+    loadForm();
+  }, [loadForm]);
 
   if (loading) {
     return (
